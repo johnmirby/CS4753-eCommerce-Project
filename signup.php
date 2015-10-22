@@ -1,9 +1,15 @@
-<!DOCTYPE HTML>
-<!--
-	Minimaxing by HTML5 UP
-	html5up.net | @n33co
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
+<?php
+	$firstname = isset($_POST['firstname']) ? $_POST['firstname'] : '';
+	$lastname = isset($_POST['lastname']) ? $_POST['lastname'] : '';
+	if( $firstname != '' && $lastname != '' )
+	{
+    	echo "Welcome ". $firstname ." ". $lastname ."</br>";
+    	echo "You have successfully signed up!";
+      
+    	exit();
+    }
+?>
+
 <html>
 	<head>
 		<title>Weblytics - Sign Up</title>
@@ -25,7 +31,7 @@
 								<nav id="nav">
 									<a href="home.html">Home</a>
 									<a href="about.html">About Us</a>
-									<a href="signup.html" class="current-page-item">Sign Up</a>
+									<a href="signup.php" class="current-page-item">Sign Up</a>
 								</nav>
 							</header>
 
@@ -40,22 +46,28 @@
 
 							<section class="left-content">
 								<h2>Sign Up</h2>
-								<p>Coming Soon ...</p>
-							</section>
-
-						</div>
-						<div class="4u 12u(mobile)">
-
-							<section>
-								<h2>Already have an account?</h2>
-								<form>
-									<h4>Username</h4>
-									<input type="text" name="username">
+								<form action="<?php $_PHP_SELF ?>" method="POST">
+									<h4>First Name</h4>
+									<input type="text" name="firstname">
+									<h4>Last Name</h4>
+									<input type="text" name="lastname">
+									<h4>Email</h4>
+									<input type="text" name="email">
+									<h4>Street Address</h4>
+									<input type="text" name="streetaddress">
+									<h4>City</h4>
+									<input type="text" name="city">
+									<h4>State</h4>
+									<input type="text" name="state">
+									<h4>Zipcode</h4>
+									<input type="text" name="zipcode">
 									<h4>Password</h4>
 									<input type="password" name="password">
+									<h4>Confirm Password</h4>
+									<input type="password" name="c_password">
+									</br></br>
+									<input type="submit" class="button">
 								</form>
-								</br>
-									<a href="#" class="button">Log In</a>
 							</section>
 
 						</div>
@@ -75,7 +87,7 @@
 											<ul class="link-list">
 												<li><a href="home.html">Home</a></li>
 												<li><a href="about.html">About us</a></li>
-												<li><a href="signup.html">Sign up</a></li>	
+												<li><a href="signup.php">Sign up</a></li>	
 											</ul>
 										</div>										
 									</div>
