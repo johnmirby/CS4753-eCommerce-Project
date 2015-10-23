@@ -1,13 +1,36 @@
 <?php
 	$firstname = isset($_POST['firstname']) ? $_POST['firstname'] : '';
 	$lastname = isset($_POST['lastname']) ? $_POST['lastname'] : '';
-	if( $firstname != '' && $lastname != '' )
-	{
-    	echo "Welcome ". $firstname ." ". $lastname ."</br>";
-    	echo "You have successfully signed up!";
-      
-    	exit();
-    }
+	$email = isset($_POST['email']) ? $_POST['email'] : '';
+	$streetaddress = isset($_POST['streetaddress']) ? $_POST['streetaddress'] : '';
+	$city = isset($_POST['city']) ? $_POST['city'] : '';
+	$state = isset($_POST['state']) ? $_POST['state'] : '';
+	$zipcode = isset($_POST['zipcode']) ? $_POST['zipcode'] : '';
+	if (!(empty($firstname) || empty($lastname) || empty($email) || empty($streetaddress) 
+		|| empty($city) || empty($state) || empty($zipcode))) {
+		$firstname = mysql_real_escape_string($firstname);
+		$lastname = mysql_real_escape_string($lastname);
+		$email = mysql_real_escape_string($email);
+		$streetaddress = mysql_real_escape_string($streetaddress);
+		$city = mysql_real_escape_string($city);
+		$state = mysql_real_escape_string($state);
+		$zipcode = mysql_real_escape_string($zipcode);
+
+		$dbhost = 'localhost';
+		$dbuser = 'root';
+		$dbpass = '';
+		$conn = mysql_connect($dbhost, $dbuser, $dbpass);
+		if(! $conn )
+		{
+			die('Could not connect: ' . mysql_error());
+		}
+		$sql = "INSERT INTO currentUsers (firstname, lastname, email, streetaddress, city, state, zipcode)
+			VALUES ( '$firstname', '$lastname', '$email', '$streetaddress', '$city', '$state', '$zipcode' )";
+
+		mysql_select_db('weblytics');
+		mysql_query( $sql, $conn );
+		mysql_close($conn);
+	}
 ?>
 
 <html>
@@ -61,10 +84,6 @@
 									<input type="text" name="state">
 									<h4>Zipcode</h4>
 									<input type="text" name="zipcode">
-									<h4>Password</h4>
-									<input type="password" name="password">
-									<h4>Confirm Password</h4>
-									<input type="password" name="c_password">
 									</br></br>
 									<input type="submit" class="button">
 								</form>
