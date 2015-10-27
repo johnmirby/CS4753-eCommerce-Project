@@ -13,6 +13,11 @@
 	$city = '';
 	$state = '';
 	$zipcode = '';
+	$domain = '';
+	$servers = '';
+	$pages = '';
+
+	$success = '';
 	if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		$firstname = isset($_POST['firstname']) ? $_POST['firstname'] : '';
 		$lastname = isset($_POST['lastname']) ? $_POST['lastname'] : '';
@@ -21,6 +26,9 @@
 		$city = isset($_POST['city']) ? $_POST['city'] : '';
 		$state = isset($_POST['state']) ? $_POST['state'] : '';
 		$zipcode = isset($_POST['zipcode']) ? $_POST['zipcode'] : '';
+		$domain = isset($_POST['domain']) ? $_POST['domain'] : '';
+		$servers = isset($_POST['servers']) ? $_POST['servers'] : '';
+		$pages = isset($_POST['pages']) ? $_POST['pages'] : '';
 
 		if (!(empty($firstname) || empty($lastname) || empty($email) || empty($streetaddress) 
 			|| empty($city) || empty($state) || empty($zipcode))) {
@@ -31,6 +39,9 @@
 			$city = mysql_real_escape_string($city);
 			$state = mysql_real_escape_string($state);
 			$zipcode = mysql_real_escape_string($zipcode);
+			$domain = mysql_real_escape_string($domain);
+			$servers = mysql_real_escape_string($servers);
+			$pages = mysql_real_escape_string($pages);
 
 			$dbhost = 'localhost';
 			$dbuser = 'root';
@@ -40,12 +51,23 @@
 			{
 				die('Could not connect: ' . mysql_error());
 			}
-			$sql = "INSERT INTO currentUsers (firstname, lastname, email, streetaddress, city, state, zipcode)
-				VALUES ( '$firstname', '$lastname', '$email', '$streetaddress', '$city', '$state', '$zipcode' )";
+			$sql = "INSERT INTO currentUsers (firstname, lastname, email, streetaddress, city, state, zipcode, domain, servers, pages)
+				VALUES ( '$firstname', '$lastname', '$email', '$streetaddress', '$city', '$state', '$zipcode' , '$domain', '$servers', '$pages' )";
 
 			mysql_select_db('weblytics');
 			mysql_query( $sql, $conn );
 			mysql_close($conn);
+			$success = 'User successfully created.';
+			$firstname = '';
+			$lastname = '';
+			$email = '';
+			$streetaddress = '';
+			$city = '';
+			$state = '';
+			$zipcode = '';
+			$domain = '';
+			$servers = '';
+			$pages = '';
 		}
 		else {
 			if (empty($firstname)) {
@@ -105,10 +127,11 @@
 			<div id="main">
 				<div class="container">
 					<div class="row main-row">
-						<div class="8u 12u(mobile)">
+						<div class="4u 12u(mobile)">
 
 							<section class="left-content">
 								<h2>Sign Up</h2>
+								<span><?php echo $success;?></span>
 								<p>* denotes a required field.</p>
 								<form action="<?php $_PHP_SELF ?>" method="POST">
 									<h4>First Name</h4>
@@ -132,11 +155,32 @@
 									<h4>Zipcode</h4>
 									<input type="text" name="zipcode" value="<?php echo $zipcode; ?>">
 									<span class="error">* <?php echo $e_zipcode;?></span>
+									<h4>Site Domain Name</h4>
+									<input type="text" name="domain" value="<?php echo $domain; ?>">
+									<h4>Number of Servers</h4>
+									<input type="text" name="servers" value="<?php echo $servers; ?>">
+									<h4>Number of Pages</h4>
+									<input type="text" name="pages" value="<?php echo $pages; ?>">
 									</br></br>
 									<input type="submit" class="button">
 								</form>
 							</section>
+						</div>
 
+						<div class="8u 12u(mobile)">
+
+							<section>
+								<h2>Signing Up with Weblytics</h2>
+								<img src="images/email-signup.jpg" alt="" class="top blog-post-image" />								
+								<p>Enter your information into the form on the left to register with our service. 
+									Pricing will vary with the number of pages and servers you wish to test, 
+									so you do not have to pay until you utilize the service. FOr a single domain, 
+									the first page or server will start at $5.00 USD. Subsequent servers and pages 
+									can be added at a price of $1.00 a piece.</p>
+								<p>Note: The domain, server, and page fields on the form are only to give us an idea of 
+									the level of service you would require.</p>
+								<p>Signing up is no charge to you, so register for an account today!</p>
+							</section>
 						</div>
 					</div>
 				</div>
