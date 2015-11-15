@@ -30,8 +30,8 @@
 		$servers = isset($_POST['servers']) ? $_POST['servers'] : '';
 		$pages = isset($_POST['pages']) ? $_POST['pages'] : '';
 
-		if (!(empty($firstname) || empty($lastname) || empty($email) || empty($streetaddress) 
-			|| empty($city) || empty($state) || empty($zipcode))) {
+		if (validateFormFields($firstname, $lastname, $email, $streetaddress, 
+			$city, $state, $zipcode, $domain, $servers, $pages)){
 			$firstname = mysql_real_escape_string($firstname);
 			$lastname = mysql_real_escape_string($lastname);
 			$email = mysql_real_escape_string($email);
@@ -91,7 +91,49 @@
 			if (empty($zipcode)) {
 				$e_zipcode = 'Zipcode is Required';
 			}
+			if (!validateEmail($email) && !empty($email)){
+				$e_email = 'Email address is invalid';
+			}
+			if (!validateName($firstname) && !empty($firstname)){
+				$e_firstname = 'First Name may not contain numbers or special characters';
+			}
+			if (!validateName($lastname) && !empty($lastname)){
+				$e_lastname = 'Last Name may not contain numbers or special characters';
+			}
+			if (!validateZipcode($zipcode) && !empty($zipcode)){
+				$e_zipcode = 'Zipcode must by five digits';
+			}
 		}
+	}
+
+	function validateFormFields($firstname, $lastname, $email, $streetaddress, $city, $state, $zipcode, $domain, $servers, $pages){
+		if (!(empty($firstname) || empty($lastname) || empty($email) || empty($streetaddress) 
+			|| empty($city) || empty($state) || empty($zipcode)) 
+			&& validateName($firstname) && validateName($lastname) && validateZipcode($zipcode) && validateEmail($email)){
+			return true;
+		}
+		return false;
+	}
+
+	function validateEmail($email){
+		if (filter_var($email, FILTER_VALIDATE_EMAIL)){
+			return true;
+		}
+		return false;
+	}
+
+	function validateName($name){
+		if (preg_match("/^[a-zA-Z'-]*$/", $name)){
+			return true;
+		}
+		return false;
+	}
+
+	function validateZipcode($zipcode){
+		if (preg_match("/^[0-9]{5}$/", $zipcode)){
+			return true;
+		}
+		return false;
 	}
 ?>
 
