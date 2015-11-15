@@ -6,6 +6,8 @@
 	$e_city = '';
 	$e_state = '';
 	$e_zipcode = '';
+	$e_servers = '';
+	$e_pages = '';
 	$firstname = '';
 	$lastname = '';
 	$email = '';
@@ -103,13 +105,20 @@
 			if (!validateZipcode($zipcode) && !empty($zipcode)){
 				$e_zipcode = 'Zipcode must by five digits';
 			}
+			if (!validateInt($servers) && !empty($servers)){
+				$e_servers = "Server Number must be an integer";
+			}
+			if (!validateInt($pages) && !empty($pages)){
+				$e_pages = "Page Number must be an integer";
+			}
 		}
 	}
 
 	function validateFormFields($firstname, $lastname, $email, $streetaddress, $city, $state, $zipcode, $domain, $servers, $pages){
 		if (!(empty($firstname) || empty($lastname) || empty($email) || empty($streetaddress) 
 			|| empty($city) || empty($state) || empty($zipcode)) 
-			&& validateName($firstname) && validateName($lastname) && validateZipcode($zipcode) && validateEmail($email)){
+			&& validateName($firstname) && validateName($lastname) && validateZipcode($zipcode) && validateEmail($email)
+			&& validateInt($servers) && validateInt($pages)){
 			return true;
 		}
 		return false;
@@ -131,6 +140,13 @@
 
 	function validateZipcode($zipcode){
 		if (preg_match("/^[0-9]{5}$/", $zipcode)){
+			return true;
+		}
+		return false;
+	}
+
+	function validateInt($num){
+		if (filter_var($num, FILTER_VALIDATE_INT)){
 			return true;
 		}
 		return false;
@@ -201,8 +217,10 @@
 									<input type="text" name="domain" value="<?php echo $domain; ?>">
 									<h4>Number of Servers</h4>
 									<input type="text" name="servers" value="<?php echo $servers; ?>">
+									<span class="error"><?php echo $e_servers;?></span>
 									<h4>Number of Pages</h4>
 									<input type="text" name="pages" value="<?php echo $pages; ?>">
+									<span class="error"><?php echo $e_pages;?></span>
 									</br></br>
 									<input type="submit" class="button">
 								</form>
