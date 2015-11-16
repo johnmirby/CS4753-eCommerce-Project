@@ -6,6 +6,7 @@
 	$e_city = '';
 	$e_state = '';
 	$e_zipcode = '';
+	$e_domain = '';
 	$e_servers = '';
 	$e_pages = '';
 	$firstname = '';
@@ -111,6 +112,18 @@
 			if (!validateInt($pages) && !empty($pages)){
 				$e_pages = "Page Number must be an integer";
 			}
+			if (!validateDomain($domain) && !empty($domain)){
+				$e_domain = "Domain is invalid";
+			}
+			if (!validateCityState($city) && !empty($city)){
+				$e_city = 'City may not contain numbers or special characters';
+			}
+			if (!validateCityState($state) && !empty($state)){
+				$e_state = 'State may not contain numbers or special characters';
+			}
+			if (!validateAddress($streetaddress) && !empty($streetaddress)){
+				$e_streetaddress = 'Street Address may not contain special characters';
+			}
 		}
 	}
 
@@ -118,38 +131,40 @@
 		if (!(empty($firstname) || empty($lastname) || empty($email) || empty($streetaddress) 
 			|| empty($city) || empty($state) || empty($zipcode)) 
 			&& validateName($firstname) && validateName($lastname) && validateZipcode($zipcode) && validateEmail($email)
-			&& validateInt($servers) && validateInt($pages)){
+			&& validateCityState($city) && validateCityState($state) && validateAddress($streetaddress) 
+			&& (validateInt($servers) || empty($servers)) && (vaidateInt($pages) || empty($pages))
+			&& (validateDomain($domain) || empty($domain))){
 			return true;
 		}
 		return false;
 	}
 
 	function validateEmail($email){
-		if (filter_var($email, FILTER_VALIDATE_EMAIL)){
-			return true;
-		}
-		return false;
+		return filter_var($email, FILTER_VALIDATE_EMAIL);
 	}
 
 	function validateName($name){
-		if (preg_match("/^[a-zA-Z'-]*$/", $name)){
-			return true;
-		}
-		return false;
+		return preg_match("/^[a-zA-Z'-]*$/", $name);
 	}
 
 	function validateZipcode($zipcode){
-		if (preg_match("/^[0-9]{5}$/", $zipcode)){
-			return true;
-		}
-		return false;
+		 return preg_match("/^[0-9]{5}$/", $zipcode);
 	}
 
 	function validateInt($num){
-		if (filter_var($num, FILTER_VALIDATE_INT)){
-			return true;
-		}
-		return false;
+		return filter_var($num, FILTER_VALIDATE_INT);
+	}
+
+	function validateCityState($city_state){
+		return preg_match("/^[a-zA-Z ]*$/", $city_state);
+	}
+
+	function validateAddress($address){
+		return preg_match("/^[0-9a-zA-Z- ]*$/", $address);
+	}
+
+	function validateDomain($domain){
+		return preg_match("/^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/", $domain);
 	}
 ?>
 
@@ -215,6 +230,7 @@
 									<span class="error">* <?php echo $e_zipcode;?></span>
 									<h4>Site Domain Name</h4>
 									<input type="text" name="domain" value="<?php echo $domain; ?>">
+									<span class="error"><?php echo $e_domain;?></span>
 									<h4>Number of Servers</h4>
 									<input type="text" name="servers" value="<?php echo $servers; ?>">
 									<span class="error"><?php echo $e_servers;?></span>
