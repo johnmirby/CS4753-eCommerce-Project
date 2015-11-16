@@ -1,4 +1,31 @@
 <?php
+
+	require_once("assets/stripe-php-3.4.0/init.php");
+
+	$stripe = array(
+  		"secret_key"      => "sk_test_r49vVKG5Xu4axWE7wBcDL8zL",
+  		"publishable_key" => "pk_test_khiDUOkMK4V06spg3cRCA8V4"
+	);
+
+	\Stripe\Stripe::setApiKey($stripe['secret_key']);
+
+	if (isset($_POST['stripeToken'])){
+		// Get the credit card details submitted by the form
+		$token = $_POST['stripeToken'];
+
+		// Create the charge on Stripe's servers - this will charge the user's card
+		try {
+  		$charge = \Stripe\Charge::create(array(
+    		"amount" => 1000, // amount in cents, again
+    		"currency" => "usd",
+    		"source" => $token,
+    		"description" => "Example charge",
+    	));
+		} catch(\Stripe\Error\Card $e) {
+  		// The card has been declined
+		}
+	}
+
 	$e_firstname = '';
 	$e_lastname = '';
 	$e_email = '';
@@ -240,6 +267,19 @@
 									</br></br>
 									<input type="submit" class="button">
 								</form>
+
+								<form action="" method="POST">
+  									<script
+    									src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+    									data-key="pk_test_khiDUOkMK4V06spg3cRCA8V4"
+    									data-amount="2000"
+    									data-name="Demo Site"
+    									data-description="2 widgets ($20.00)"
+    									data-image="/128x128.png"
+    									data-locale="auto">
+  									</script>
+								</form>
+
 							</section>
 						</div>
 
