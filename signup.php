@@ -188,19 +188,25 @@
 
 	function processStripePayment($cents_amount){
 		if (isset($_POST['stripeToken'])){
-		$token = $_POST['stripeToken'];
+			$token = $_POST['stripeToken'];
 
-		try {
-  		$charge = \Stripe\Charge::create(array(
-    		"amount" => $cents_amount,
-    		"currency" => "usd",
-    		"source" => $token,
-    		"description" => "Example charge",
-    	));
-		} catch(\Stripe\Error\Card $e) {
-			//Card has been declined
+			$customer = \Stripe\Customer::create(array(
+				'card' => $token,
+				'email' => strip_tags(trim($_POST['email']))
+			));
+			$customer_id = $customer->id;
+
+			try {
+	  		$charge = \Stripe\Charge::create(array(
+	    		"amount" => $cents_amount,
+	    		"currency" => "usd",
+	    		"description" => "Weblytics Sign-Up",
+	    		"customer" => $customer_id
+	    	));
+			} catch(\Stripe\Error\Card $e) {
+				//Card has been declined
+			}
 		}
-	}
 	}
 ?>
 
