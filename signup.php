@@ -209,6 +209,41 @@
 		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+		<script type="text/javascript">
+			Stripe.setPublishableKey('pk_test_khiDUOkMK4V06spg3cRCA8V4');
+			jQuery(function($) {
+			$('#payment-form').submit(function(event) {
+			    var $form = $(this);
+
+			    // Disable the submit button to prevent repeated clicks
+			    $form.find('button').prop('disabled', true);
+
+			    Stripe.card.createToken($form, stripeResponseHandler);
+
+			    // Prevent the form from submitting with the default action
+			    return false;
+			  });
+			});
+			function stripeResponseHandler(status, response) {
+			var $form = $('#payment-form');
+
+			if (response.error) {
+			    // Show the errors on the form
+			    $form.find('.payment-errors').text(response.error.message);
+			    $form.find('button').prop('disabled', false);
+			} else {
+			    // response contains id and card, which contains additional card details
+			    var token = response.id;
+			    // Insert the token into the form so it gets submitted to the server
+			    $form.append($('<input type="hidden" name="stripeToken" />').val(token));
+			    // and submit
+			    $form.get(0).submit();
+			  }
+			};
+		</script>
+
 	</head>
 	<body>
 		<div id="page-wrapper">
@@ -237,9 +272,12 @@
 
 							<section class="left-content">
 								<h2>Sign Up</h2>
+								<span>Signing up with Weblytics requires a one-time $5.00 fee.</span>
+								<span>Please enter your information below.</span>
+								</br></br>
 								<span><?php echo $success;?></span>
 								<p>* denotes a required field.</p>
-								<form action="<?php $_PHP_SELF ?>" method="POST">
+								<form id="payment-form" action="<?php $_PHP_SELF ?>" method="POST">
 									<h4>First Name</h4>
 									<input type="text" name="firstname" value="<?php echo $firstname; ?>">
 									<span class="error">* <?php echo $e_firstname;?></span>
@@ -270,17 +308,16 @@
 									<h4>Number of Pages</h4>
 									<input type="text" name="pages" value="<?php echo $pages; ?>">
 									<span class="error"><?php echo $e_pages;?></span>
+									<h4>Card Number</h4>
+									<input type="text" size="20" data-stripe="number"/>
+									<h4>CVC</h4>
+									<input type="text" size="4" data-stripe="cvc"/>
+									<h4>Expiration (MM/YYYY)</h4>
+									<input type="text" size="2" data-stripe="exp-month"/>
+    								<span> / </span><input type="text" size="4" data-stripe="exp-year"/>
 									</br></br>
-									<script
-									    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-									    data-key="pk_test_khiDUOkMK4V06spg3cRCA8V4"
-									    data-name="Weblytics"
-									    data-description="Single Domain Sign-Up"
-									    data-amount="500"
-									    data-locale="auto">
-									</script>
+									<button type="submit" class="button">Sign Up</button>
 								</form>
-
 							</section>
 						</div>
 
