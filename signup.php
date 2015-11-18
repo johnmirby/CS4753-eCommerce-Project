@@ -9,9 +9,6 @@
 
 	\Stripe\Stripe::setApiKey($stripe['secret_key']);
 
-	//TODO: Charge amount corresponding to fields
-	processStripePayment(1000);
-
 	$e_firstname = '';
 	$e_lastname = '';
 	$e_email = '';
@@ -74,6 +71,9 @@
 			mysql_query( $sql, $conn );
 			mysql_close($conn);
 			$success = 'User successfully created.';
+
+			processStripePayment(500);
+
 			$firstname = '';
 			$lastname = '';
 			$email = '';
@@ -106,6 +106,9 @@
 			}
 			if (empty($zipcode)) {
 				$e_zipcode = 'Zipcode is Required';
+			}
+			if (empty($domain)) {
+				$e_domain = 'Domain is Required';
 			}
 			if (!validateEmail($email) && !empty($email)){
 				$e_email = 'Email address is invalid';
@@ -145,7 +148,7 @@
 			|| empty($city) || empty($state) || empty($zipcode)) 
 			&& validateName($firstname) && validateName($lastname) && validateZipcode($zipcode) && validateEmail($email)
 			&& validateCityState($city) && validateCityState($state) && validateAddress($streetaddress) 
-			&& (validateInt($servers) || empty($servers)) && (vaidateInt($pages) || empty($pages))
+			&& (validateInt($servers) || empty($servers)) && (validateInt($pages) || empty($pages))
 			&& (validateDomain($domain) || empty($domain))){
 			return true;
 		}
@@ -260,7 +263,7 @@
 									<span class="error">* <?php echo $e_zipcode;?></span>
 									<h4>Site Domain Name</h4>
 									<input type="text" name="domain" value="<?php echo $domain; ?>">
-									<span class="error"><?php echo $e_domain;?></span>
+									<span class="error">* <?php echo $e_domain;?></span>
 									<h4>Number of Servers</h4>
 									<input type="text" name="servers" value="<?php echo $servers; ?>">
 									<span class="error"><?php echo $e_servers;?></span>
@@ -268,19 +271,14 @@
 									<input type="text" name="pages" value="<?php echo $pages; ?>">
 									<span class="error"><?php echo $e_pages;?></span>
 									</br></br>
-									<input type="submit" class="button">
-								</form>
-
-								<form action="" method="POST">
-  									<script
-    									src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-    									data-key="pk_test_khiDUOkMK4V06spg3cRCA8V4"
-    									data-amount="2000"
-    									data-name="Demo Site"
-    									data-description="2 widgets ($20.00)"
-    									data-image="/128x128.png"
-    									data-locale="auto">
-  									</script>
+									<script
+									    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+									    data-key="pk_test_khiDUOkMK4V06spg3cRCA8V4"
+									    data-name="Weblytics"
+									    data-description="Single Domain Sign-Up"
+									    data-amount="500"
+									    data-locale="auto">
+									</script>
 								</form>
 
 							</section>
