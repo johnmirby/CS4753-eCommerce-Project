@@ -19,6 +19,7 @@
 	$e_domain = '';
 	$e_servers = '';
 	$e_pages = '';
+	$e_carderrors = '';
 	$firstname = '';
 	$lastname = '';
 	$email = '';
@@ -43,8 +44,10 @@
 		$servers = isset($_POST['servers']) ? $_POST['servers'] : '';
 		$pages = isset($_POST['pages']) ? $_POST['pages'] : '';
 
+		$e_carderrors = isset($_POST['cardErrors']) ? $_POST['cardErrors'] : '';
+
 		if (validateFormFields($firstname, $lastname, $email, $streetaddress, 
-			$city, $state, $zipcode, $domain, $servers, $pages)){
+			$city, $state, $zipcode, $domain, $servers, $pages, $e_carderrors)){
 			$firstname = mysql_real_escape_string($firstname);
 			$lastname = mysql_real_escape_string($lastname);
 			$email = mysql_real_escape_string($email);
@@ -143,13 +146,13 @@
 		}
 	}
 
-	function validateFormFields($firstname, $lastname, $email, $streetaddress, $city, $state, $zipcode, $domain, $servers, $pages){
+	function validateFormFields($firstname, $lastname, $email, $streetaddress, $city, $state, $zipcode, $domain, $servers, $pages, $cardErrors){
 		if (!(empty($firstname) || empty($lastname) || empty($email) || empty($streetaddress) 
 			|| empty($city) || empty($state) || empty($zipcode)) 
 			&& validateName($firstname) && validateName($lastname) && validateZipcode($zipcode) && validateEmail($email)
 			&& validateCityState($city) && validateCityState($state) && validateAddress($streetaddress) 
 			&& (validateInt($servers) || empty($servers)) && (validateInt($pages) || empty($pages))
-			&& (validateDomain($domain) || empty($domain))){
+			&& (validateDomain($domain) || empty($domain)) && empty($cardErrors)){
 			return true;
 		}
 		return false;
@@ -230,9 +233,9 @@
 			var $form = $('#payment-form');
 
 			if (response.error) {
-			    // Show the errors on the form
-			    $form.find('.payment-errors').text(response.error.message);
-			    $form.find('button').prop('disabled', false);
+			    // Post the errors
+			    $form.append($('<input type="hidden" name="cardErrors" />').val(response.error.message));
+			    $form.get(0).submit();
 			} else {
 			    // response contains id and card, which contains additional card details
 			    var token = response.id;
@@ -309,13 +312,13 @@
 									<input type="text" name="pages" value="<?php echo $pages; ?>">
 									<span class="error"><?php echo $e_pages;?></span>
 									<h4>Card Number</h4>
-									<input type="text" size="20" data-stripe="number"/>
+									<input type="text" size="20" data-stripe="number"/> *
 									<h4>CVC</h4>
-									<input type="text" size="4" data-stripe="cvc"/>
+									<input type="text" size="4" data-stripe="cvc"/> *
 									<h4>Expiration (MM/YYYY)</h4>
 									<input type="text" size="2" data-stripe="exp-month"/>
-    								<span> / </span><input type="text" size="4" data-stripe="exp-year"/>
-									</br></br>
+    								<span> / </span><input type="text" size="4" data-stripe="exp-year"/> *
+									</br><span class="error"><?php echo $e_carderrors;?></span></br></br>
 									<button type="submit" class="button">Sign Up</button>
 								</form>
 							</section>
@@ -328,7 +331,7 @@
 								<img src="images/email-signup.jpg" alt="" class="top blog-post-image" />								
 								<p>Enter your information into the form on the left to register with our service. 
 									Pricing will vary with the number of pages and servers you wish to test, 
-									so you do not have to pay until you utilize the service. FOr a single domain, 
+									so you do not have to pay until you utilize the service. For a single domain, 
 									the first page or server will start at $5.00 USD. Subsequent servers and pages 
 									can be added at a price of $1.00 a piece.</p>
 								<p>Note: The domain, server, and page fields on the form are only to give us an idea of 
