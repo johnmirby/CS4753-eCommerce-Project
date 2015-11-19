@@ -1,6 +1,7 @@
 <?php
 
 	require_once("assets/stripe-php-3.4.0/init.php");
+	require_once("assets/PHPMailer/PHPMailerAutoload.php");
 
 	$stripe = array(
   		"secret_key"      => "sk_test_r49vVKG5Xu4axWE7wBcDL8zL",
@@ -32,6 +33,8 @@
 	$pages = '';
 
 	$success = '';
+	$mail_sent = '';
+	$receipt_sent = '';
 	if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		$firstname = isset($_POST['firstname']) ? $_POST['firstname'] : '';
 		$lastname = isset($_POST['lastname']) ? $_POST['lastname'] : '';
@@ -75,7 +78,24 @@
 			mysql_close($conn);
 			$success = 'User successfully created.';
 
-			processStripePayment(500);
+			$mail = new PHPMailer;
+			$mail->IsSMTP(); // send via SMTP
+			$mail->SMTPAuth = true; // turn on SMTP authentication
+			$mail->Username = 'cs4753.eCommerce@gmail.com'; // Enter your SMTP username
+			$mail->Password = '12qwas3.'; // SMTP password
+			$webmaster_email = 'admin@weblytics.com'; //Add reply-to email address
+			$mail->From = $webmaster_email;
+			$mail->FromName = 'Weblytics';
+			$mail->addAddress($email);
+			$mail->Subject = 'Weblytics Sign-Up';
+			$mail->Body    = 'Thank you for signing up with Weblytics!';
+			if(!$mail->send()) {
+			    $mail_sent = 'Confirmation email could not be sent.';
+			} else {
+			    $mail_sent = 'Confirmation email has been sent';
+			}
+
+			processStripePayment(500, $email);
 
 			$firstname = '';
 			$lastname = '';
@@ -186,7 +206,7 @@
 		return preg_match("/^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/", $domain);
 	}
 
-	function processStripePayment($cents_amount){
+	function processStripePayment($cents_amount, $email){
 		if (isset($_POST['stripeToken'])){
 			$token = $_POST['stripeToken'];
 
@@ -203,6 +223,24 @@
 	    		"description" => "Weblytics Sign-Up",
 	    		"customer" => $customer_id
 	    	));
+
+	  		$mail = new PHPMailer;
+	  		$mail->IsSMTP(); // send via SMTP
+			$mail->SMTPAuth = true; // turn on SMTP authentication
+			$mail->Username = 'cs4753.eCommerce@gmail.com'; // Enter your SMTP username
+			$mail->Password = '12qwas3.'; // SMTP password
+			$webmaster_email = 'admin@weblytics.com'; //Add reply-to email address
+			$mail->From = $webmaster_email;
+			$mail->FromName = 'Weblytics';
+			$mail->addAddress($email);
+			$mail->Subject = 'Weblytics - Payment Received';
+			$mail->Body    = 'Your payment of $5.00 associated with our sign-up fee has been received.';
+			if(!$mail->send()) {
+			    $receipt_sent = 'Message could not be sent.';
+			} else {
+			    $receipt_sent = 'Message has been sent';
+			}
+
 			} catch(\Stripe\Error\Card $e) {
 				//Card has been declined
 			}
@@ -284,7 +322,9 @@
 								<span>Signing up with Weblytics requires a one-time $5.00 fee.</span>
 								<span>Please enter your information below.</span>
 								</br></br>
-								<span><?php echo $success;?></span>
+								<span><?php echo $success;?></span></br>
+								<span><?php echo $mail_sent;?></span></br>
+								<span><?php echo $receipt_sent;?></span>
 								<p>* denotes a required field.</p>
 								<form id="payment-form" action="<?php $_PHP_SELF ?>" method="POST">
 									<h4>First Name</h4>
