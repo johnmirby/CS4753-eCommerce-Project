@@ -10,17 +10,6 @@
 
 	\Stripe\Stripe::setApiKey($stripe['secret_key']);
 
-	$e_firstname = '';
-	$e_lastname = '';
-	$e_email = '';
-	$e_streetaddress = '';
-	$e_city = '';
-	$e_state = '';
-	$e_zipcode = '';
-	$e_domain = '';
-	$e_servers = '';
-	$e_pages = '';
-	$e_carderrors = '';
 	$firstname = '';
 	$lastname = '';
 	$email = '';
@@ -31,10 +20,8 @@
 	$domain = '';
 	$servers = '';
 	$pages = '';
-
 	$success = '';
 	$mail_sent = '';
-	$receipt_sent = '';
 	if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		$firstname = isset($_POST['firstname']) ? $_POST['firstname'] : '';
 		$lastname = isset($_POST['lastname']) ? $_POST['lastname'] : '';
@@ -47,163 +34,54 @@
 		$servers = isset($_POST['servers']) ? $_POST['servers'] : '';
 		$pages = isset($_POST['pages']) ? $_POST['pages'] : '';
 
-		$e_carderrors = isset($_POST['cardErrors']) ? $_POST['cardErrors'] : '';
+		$firstname = mysql_real_escape_string($firstname);
+		$lastname = mysql_real_escape_string($lastname);
+		$email = mysql_real_escape_string($email);
+		$streetaddress = mysql_real_escape_string($streetaddress);
+		$city = mysql_real_escape_string($city);
+		$state = mysql_real_escape_string($state);
+		$zipcode = mysql_real_escape_string($zipcode);
+		$domain = mysql_real_escape_string($domain);
+		$servers = mysql_real_escape_string($servers);
+		$pages = mysql_real_escape_string($pages);
 
-		if (validateFormFields($firstname, $lastname, $email, $streetaddress, 
-			$city, $state, $zipcode, $domain, $servers, $pages, $e_carderrors)){
-			$firstname = mysql_real_escape_string($firstname);
-			$lastname = mysql_real_escape_string($lastname);
-			$email = mysql_real_escape_string($email);
-			$streetaddress = mysql_real_escape_string($streetaddress);
-			$city = mysql_real_escape_string($city);
-			$state = mysql_real_escape_string($state);
-			$zipcode = mysql_real_escape_string($zipcode);
-			$domain = mysql_real_escape_string($domain);
-			$servers = mysql_real_escape_string($servers);
-			$pages = mysql_real_escape_string($pages);
-
-			$dbhost = 'localhost';
-			$dbuser = 'root';
-			$dbpass = '';
-			$conn = mysql_connect($dbhost, $dbuser, $dbpass);
-			if(! $conn )
-			{
-				die('Could not connect: ' . mysql_error());
-			}
-			$sql = "INSERT INTO currentUsers (firstname, lastname, email, streetaddress, city, state, zipcode, domain, servers, pages)
-				VALUES ( '$firstname', '$lastname', '$email', '$streetaddress', '$city', '$state', '$zipcode' , '$domain', '$servers', '$pages' )";
-
-			mysql_select_db('weblytics');
-			mysql_query( $sql, $conn );
-			mysql_close($conn);
-			$success = 'User successfully created.';
-
-			$mail = new PHPMailer;
-			$mail->IsSMTP(); // send via SMTP
-			$mail->SMTPAuth = true; // turn on SMTP authentication
-			$mail->Username = 'cs4753.eCommerce@gmail.com'; // Enter your SMTP username
-			$mail->Password = '12qwas3.'; // SMTP password
-			$webmaster_email = 'admin@weblytics.com'; //Add reply-to email address
-			$mail->From = $webmaster_email;
-			$mail->FromName = 'Weblytics';
-			$mail->addAddress($email);
-			$mail->Subject = 'Weblytics Sign-Up';
-			$mail->Body    = 'Thank you for signing up with Weblytics!';
-			if(!$mail->send()) {
-			    $mail_sent = 'Confirmation email could not be sent.';
-			} else {
-			    $mail_sent = 'Confirmation email has been sent';
-			}
-
-			processStripePayment(500, $email);
-
-			$firstname = '';
-			$lastname = '';
-			$email = '';
-			$streetaddress = '';
-			$city = '';
-			$state = '';
-			$zipcode = '';
-			$domain = '';
-			$servers = '';
-			$pages = '';
+		$dbhost = 'localhost';
+		$dbuser = 'root';
+		$dbpass = '';
+		$conn = mysql_connect($dbhost, $dbuser, $dbpass);
+		if(! $conn )
+		{
+			die('Could not connect: ' . mysql_error());
 		}
-		else {
-			if (empty($firstname)) {
-				$e_firstname = 'First Name is Required';
-			}
-			if (empty($lastname)) {
-				$e_lastname = 'Last Name is Required';
-			}
-			if (empty($email)) {
-				$e_email = 'Email is Required';
-			}
-			if (empty($streetaddress)) {
-				$e_streetaddress = 'Street Address is Required';
-			}
-			if (empty($city)) {
-				$e_city = 'City is Required';
-			}
-			if (empty($state)) {
-				$e_state = 'State is Required';
-			}
-			if (empty($zipcode)) {
-				$e_zipcode = 'Zipcode is Required';
-			}
-			if (empty($domain)) {
-				$e_domain = 'Domain is Required';
-			}
-			if (!validateEmail($email) && !empty($email)){
-				$e_email = 'Email address is invalid';
-			}
-			if (!validateName($firstname) && !empty($firstname)){
-				$e_firstname = 'First Name may not contain numbers or special characters';
-			}
-			if (!validateName($lastname) && !empty($lastname)){
-				$e_lastname = 'Last Name may not contain numbers or special characters';
-			}
-			if (!validateZipcode($zipcode) && !empty($zipcode)){
-				$e_zipcode = 'Zipcode must by five digits';
-			}
-			if (!validateInt($servers) && !empty($servers)){
-				$e_servers = "Server Number must be an integer";
-			}
-			if (!validateInt($pages) && !empty($pages)){
-				$e_pages = "Page Number must be an integer";
-			}
-			if (!validateDomain($domain) && !empty($domain)){
-				$e_domain = "Domain is invalid";
-			}
-			if (!validateCityState($city) && !empty($city)){
-				$e_city = 'City may not contain numbers or special characters';
-			}
-			if (!validateCityState($state) && !empty($state)){
-				$e_state = 'State may not contain numbers or special characters';
-			}
-			if (!validateAddress($streetaddress) && !empty($streetaddress)){
-				$e_streetaddress = 'Street Address may not contain special characters';
-			}
+		$sql = "INSERT INTO currentUsers (firstname, lastname, email, streetaddress, city, state, zipcode, domain, servers, pages)
+			VALUES ( '$firstname', '$lastname', '$email', '$streetaddress', '$city', '$state', '$zipcode' , '$domain', '$servers', '$pages' )";
+
+		mysql_select_db('weblytics');
+		mysql_query( $sql, $conn );
+		mysql_close($conn);
+		$success = 'User successfully created.';
+
+		$email = isset($_POST['email']) ? $_POST['email'] : '';
+
+		$mail = new PHPMailer;
+		$mail->IsSMTP(); // send via SMTP
+		$mail->SMTPAuth = true; // turn on SMTP authentication
+		$mail->SMTPSecure = 'tls';
+		$mail->Host = 'smtp.gmail.com';
+		$mail->Port = 587;
+		$mail->Username = 'cs4753.eCommerce@gmail.com'; // Enter your SMTP username
+		$mail->Password = '12qwas3.'; // SMTP password
+		$mail->FromName = 'Weblytics';
+		$mail->addAddress($email);
+		$mail->Subject = 'Weblytics Sign-Up';
+		$mail->Body    = 'Thank you for signing up with Weblytics!';
+		if(!$mail->send()) {
+		    $mail_sent = 'Confirmation email could not be sent.';
+		} else {
+		    $mail_sent = 'Confirmation email has been sent';
 		}
-	}
 
-	function validateFormFields($firstname, $lastname, $email, $streetaddress, $city, $state, $zipcode, $domain, $servers, $pages, $cardErrors){
-		if (!(empty($firstname) || empty($lastname) || empty($email) || empty($streetaddress) 
-			|| empty($city) || empty($state) || empty($zipcode)) 
-			&& validateName($firstname) && validateName($lastname) && validateZipcode($zipcode) && validateEmail($email)
-			&& validateCityState($city) && validateCityState($state) && validateAddress($streetaddress) 
-			&& (validateInt($servers) || empty($servers)) && (validateInt($pages) || empty($pages))
-			&& (validateDomain($domain) || empty($domain)) && empty($cardErrors)){
-			return true;
-		}
-		return false;
-	}
-
-	function validateEmail($email){
-		return filter_var($email, FILTER_VALIDATE_EMAIL);
-	}
-
-	function validateName($name){
-		return preg_match("/^[a-zA-Z'-]*$/", $name);
-	}
-
-	function validateZipcode($zipcode){
-		 return preg_match("/^[0-9]{5}$/", $zipcode);
-	}
-
-	function validateInt($num){
-		return filter_var($num, FILTER_VALIDATE_INT);
-	}
-
-	function validateCityState($city_state){
-		return preg_match("/^[a-zA-Z ]*$/", $city_state);
-	}
-
-	function validateAddress($address){
-		return preg_match("/^[0-9a-zA-Z- ]*$/", $address);
-	}
-
-	function validateDomain($domain){
-		return preg_match("/^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/", $domain);
+		processStripePayment(500, $email);
 	}
 
 	function processStripePayment($cents_amount, $email){
@@ -227,18 +105,19 @@
 	  		$mail = new PHPMailer;
 	  		$mail->IsSMTP(); // send via SMTP
 			$mail->SMTPAuth = true; // turn on SMTP authentication
+			$mail->SMTPSecure = 'tls';
+			$mail->Host = 'smtp.gmail.com';
+			$mail->Port = 587;
 			$mail->Username = 'cs4753.eCommerce@gmail.com'; // Enter your SMTP username
 			$mail->Password = '12qwas3.'; // SMTP password
-			$webmaster_email = 'admin@weblytics.com'; //Add reply-to email address
-			$mail->From = $webmaster_email;
 			$mail->FromName = 'Weblytics';
 			$mail->addAddress($email);
 			$mail->Subject = 'Weblytics - Payment Received';
 			$mail->Body    = 'Your payment of $5.00 associated with our sign-up fee has been received.';
 			if(!$mail->send()) {
-			    $receipt_sent = 'Message could not be sent.';
+			    //error
 			} else {
-			    $receipt_sent = 'Message has been sent';
+			    //good
 			}
 
 			} catch(\Stripe\Error\Card $e) {
@@ -260,13 +139,140 @@
 		<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 		<script type="text/javascript">
 			Stripe.setPublishableKey('pk_test_khiDUOkMK4V06spg3cRCA8V4');
+			function isEmpty(str) {
+    			return (!str || 0 === str.length);
+			};
+			function validateName(name){
+				var regex = /^[a-zA-Z'-]*$/;
+				return regex.test(name);
+			};
+			function validateInt(num){
+				var regex = /^[0-9]*$/;
+				return regex.test(num);
+			};
+			function validateDomain(domain){
+				var regex = /^(?:[-A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/;
+				return regex.test(domain);
+			};
+			function validateZipcode(zipcode){
+				var regex = /^[0-9]{5}$/;
+				return regex.test(zipcode);
+			};
+			function validateCityState(citystate){
+				var regex = /^[a-zA-Z ]*$/;
+				return regex.test(citystate);
+			};
+			function validateAddress(address) {
+				var regex = /^[0-9a-zA-Z- ]*$/;
+				return regex.test(address);
+			};
+			function validateEmail(email) {
+			    var regex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
+			    return regex.test(email);
+			};
+			function validateFormFields() {
+				var valid = true;
+				var $form = $('#payment-form');
+				var firstname = $form.find('#firstname').val();
+				var lastname = $form.find('#lastname').val();
+				var email = $form.find('#email').val();
+				var streetaddress = $form.find('#streetaddress').val();
+				var city = $form.find('#city').val();
+				var state = $form.find('#state').val();
+				var zipcode = $form.find('#zipcode').val();
+				var domain = $form.find('#domain').val();
+				var servers = $form.find('#servers').val();
+				var pages = $form.find('#pages').val();
+				$form.find('.firstname-error').text("*");
+				$form.find('.lastname-error').text("*");
+				$form.find('.email-error').text("*");
+				$form.find('.streetaddress-error').text("*");
+				$form.find('.state-error').text("*");
+				$form.find('.city-error').text("*");
+				$form.find('.zipcode-error').text("*");
+				$form.find('.domain-error').text("*");
+				$form.find('.pages-error').text("");
+				$form.find('.servers-error').text("");
+
+				if (isEmpty(firstname)) {
+					$form.find('.firstname-error').text("* First Name is required");
+					valid = false;
+				}
+				else if (!validateName(firstname)) {
+					$form.find('.firstname-error').text("* First Name may not contain numbers or special characters");
+					valid = false;
+				}
+				if (isEmpty(lastname)) {
+					$form.find('.lastname-error').text("* Last Name is required");
+					valid = false;
+				}
+				else if (!validateName(lastname)) {
+					$form.find('.lastname-error').text("* Last Name may not contain numbers or special characters");
+					valid = false;
+				}
+				if (isEmpty(email)) {
+					$form.find('.email-error').text("* Email is required");
+					valid = false;
+				}
+				else if (!validateEmail(email)) {
+					$form.find('.email-error').text("* Email is invalid");
+					valid = false;
+				}
+				if (isEmpty(streetaddress)) {
+					$form.find('.streetaddress-error').text("* Street Address is required");
+					valid = false;
+				}
+				else if (!validateAddress(streetaddress)) {
+					$form.find('.streetaddress-error').text("* Street Address may not contain special characters");
+					valid = false;
+				}
+				if (isEmpty(city)) {
+					$form.find('.city-error').text("* City is required");
+					valid = false;
+				}
+				else if (!validateCityState(city)) {
+					$form.find('.city-error').text("* City may not contain numbers or special characters");
+					valid = false;
+				}
+				if (isEmpty(state)) {
+					$form.find('.state-error').text("* State is required");
+					valid = false;
+				}
+				else if (!validateCityState(state)) {
+					$form.find('.state-error').text("* State may not contain numbers or special characters");
+					valid = false;
+				}
+				if (isEmpty(zipcode)) {
+					$form.find('.zipcode-error').text("* Zipcode is required");
+					valid = false;
+				}
+				else if (!validateZipcode(zipcode)) {
+					$form.find('.zipcode-error').text("* Zipcode must by five digits");
+					valid = false;
+				}
+				if (isEmpty(domain)) {
+					$form.find('.domain-error').text("* Domain is required");
+					valid = false;
+				}
+				else if (!validateDomain(domain)) {
+					$form.find('.domain-error').text("* Domain is invalid");
+					valid = false;
+				}
+				if (!validateInt(pages)) {
+					$form.find('.pages-error').text("* Page Number must be an integer");
+					valid = false;
+				} 
+				if (!validateInt(servers)) {
+					$form.find('.servers-error').text("* Server Number must be an integer");
+					valid = false;
+				}
+				return valid;
+			};
 			jQuery(function($) {
 			$('#payment-form').submit(function(event) {
 			    var $form = $(this);
 
-			    // Disable the submit button to prevent repeated clicks
-			    $form.find('button').prop('disabled', true);
-
+			    $form.find('.button').prop('disabled', true);
 			    Stripe.card.createToken($form, stripeResponseHandler);
 
 			    // Prevent the form from submitting with the default action
@@ -278,15 +284,18 @@
 
 			if (response.error) {
 			    // Post the errors
-			    $form.append($('<input type="hidden" name="cardErrors" />').val(response.error.message));
-			    $form.get(0).submit();
+			    validateFormFields();
+			    $form.find('.payment-error').text(response.error.message);
+			    $form.find('.button').prop('disabled', false);
 			} else {
-			    // response contains id and card, which contains additional card details
-			    var token = response.id;
-			    // Insert the token into the form so it gets submitted to the server
-			    $form.append($('<input type="hidden" name="stripeToken" />').val(token));
-			    // and submit
-			    $form.get(0).submit();
+				if (validateFormFields()) {
+				    // response contains id and card, which contains additional card details
+				    var token = response.id;
+				    // Insert the token into the form so it gets submitted to the server
+				    $form.append($('<input type="hidden" name="stripeToken" />').val(token));
+				    // and submit
+				    $form.get(0).submit();
+				}
 			  }
 			};
 		</script>
@@ -323,40 +332,39 @@
 								<span>Please enter your information below.</span>
 								</br></br>
 								<span><?php echo $success;?></span></br>
-								<span><?php echo $mail_sent;?></span></br>
-								<span><?php echo $receipt_sent;?></span>
+								<span><?php echo $mail_sent;?></span>
 								<p>* denotes a required field.</p>
 								<form id="payment-form" action="<?php $_PHP_SELF ?>" method="POST">
 									<h4>First Name</h4>
-									<input type="text" name="firstname" value="<?php echo $firstname; ?>">
-									<span class="error">* <?php echo $e_firstname;?></span>
+									<input type="text" id="firstname" name="firstname">
+									<span class="firstname-error">*</span>
 									<h4>Last Name</h4>
-									<input type="text" name="lastname" value="<?php echo $lastname; ?>">
-									<span class="error">* <?php echo $e_lastname;?></span>
+									<input type="text" id="lastname" name="lastname">
+									<span class="lastname-error">*</span>
 									<h4>Email</h4>
-									<input type="text" name="email" value="<?php echo $email; ?>">
-									<span class="error">* <?php echo $e_email;?></span>
+									<input type="text" id="email" name="email">
+									<span class="email-error">*</span>
 									<h4>Street Address</h4>
-									<input type="text" name="streetaddress" value="<?php echo $streetaddress; ?>">
-									<span class="error">* <?php echo $e_streetaddress;?></span>
+									<input type="text" id="streetaddress" name="streetaddress">
+									<span class="streetaddress-error">*</span>
 									<h4>City</h4>
-									<input type="text" name="city" value="<?php echo $city; ?>">
-									<span class="error">* <?php echo $e_city;?></span>
+									<input type="text" id="city" name="city">
+									<span class="city-error">*</span>
 									<h4>State</h4>
-									<input type="text" name="state" value="<?php echo $state; ?>">
-									<span class="error">* <?php echo $e_state;?></span>
+									<input type="text" id="state" name="state">
+									<span class="state-error">*</span>
 									<h4>Zipcode</h4>
-									<input type="text" name="zipcode" value="<?php echo $zipcode; ?>">
-									<span class="error">* <?php echo $e_zipcode;?></span>
+									<input type="text" id="zipcode" name="zipcode">
+									<span class="zipcode-error">*</span>
 									<h4>Site Domain Name</h4>
-									<input type="text" name="domain" value="<?php echo $domain; ?>">
-									<span class="error">* <?php echo $e_domain;?></span>
+									<input type="text" id="domain" name="domain">
+									<span class="domain-error">*</span>
 									<h4>Number of Servers</h4>
-									<input type="text" name="servers" value="<?php echo $servers; ?>">
-									<span class="error"><?php echo $e_servers;?></span>
+									<input type="text" id="servers" name="servers">
+									<span class="servers-error"></span>
 									<h4>Number of Pages</h4>
-									<input type="text" name="pages" value="<?php echo $pages; ?>">
-									<span class="error"><?php echo $e_pages;?></span>
+									<input type="text" id="pages" name="pages">
+									<span class="pages-error"></span>
 									<h4>Card Number</h4>
 									<input type="text" size="20" data-stripe="number"/> *
 									<h4>CVC</h4>
@@ -364,7 +372,7 @@
 									<h4>Expiration (MM/YYYY)</h4>
 									<input type="text" size="2" data-stripe="exp-month"/>
     								<span> / </span><input type="text" size="4" data-stripe="exp-year"/> *
-									</br><span class="error"><?php echo $e_carderrors;?></span></br></br>
+									</br><span class="payment-error"></span></br></br>
 									<button type="submit" class="button">Sign Up</button>
 								</form>
 							</section>
