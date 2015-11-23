@@ -183,6 +183,16 @@
 				var domain = $form.find('#domain').val();
 				var servers = $form.find('#servers').val();
 				var pages = $form.find('#pages').val();
+				$form.find('#firstname').css("border", "1px solid gray");
+				$form.find('#lastname').css("border", "1px solid gray");
+				$form.find('#email').css("border", "1px solid gray");
+				$form.find('#streetaddress').css("border", "1px solid gray");
+				$form.find('#city').css("border", "1px solid gray");
+				$form.find('#state').css("border", "1px solid gray");
+				$form.find('#zipcode').css("border", "1px solid gray");
+				$form.find('#domain').css("border", "1px solid gray");
+				$form.find('#servers').css("border", "1px solid gray");
+				$form.find('#pages').css("border", "1px solid gray");
 				$form.find('.firstname-error').text("*");
 				$form.find('.lastname-error').text("*");
 				$form.find('.email-error').text("*");
@@ -197,80 +207,102 @@
 				if (isEmpty(firstname)) {
 					$form.find('.firstname-error').text("* First Name is required");
 					valid = false;
+					$form.find('#firstname').css("border", "2px solid #FF0000");
 				}
 				else if (!validateName(firstname)) {
 					$form.find('.firstname-error').text("* First Name may not contain numbers or special characters");
 					valid = false;
+					$form.find('#firstname').css("border", "2px solid #FF0000");
 				}
 				if (isEmpty(lastname)) {
 					$form.find('.lastname-error').text("* Last Name is required");
 					valid = false;
+					$form.find('#lastname').css("border", "2px solid #FF0000");
 				}
 				else if (!validateName(lastname)) {
 					$form.find('.lastname-error').text("* Last Name may not contain numbers or special characters");
 					valid = false;
+					$form.find('#lastname').css("border", "2px solid #FF0000");
 				}
 				if (isEmpty(email)) {
 					$form.find('.email-error').text("* Email is required");
 					valid = false;
+					$form.find('#email').css("border", "2px solid #FF0000");
 				}
 				else if (!validateEmail(email)) {
 					$form.find('.email-error').text("* Email is invalid");
 					valid = false;
+					$form.find('#email').css("border", "2px solid #FF0000");
 				}
 				if (isEmpty(streetaddress)) {
 					$form.find('.streetaddress-error').text("* Street Address is required");
 					valid = false;
+					$form.find('#streetaddress').css("border", "2px solid #FF0000");
 				}
 				else if (!validateAddress(streetaddress)) {
 					$form.find('.streetaddress-error').text("* Street Address may not contain special characters");
 					valid = false;
+					$form.find('#streetaddress').css("border", "2px solid #FF0000");
 				}
 				if (isEmpty(city)) {
 					$form.find('.city-error').text("* City is required");
 					valid = false;
+					$form.find('#city').css("border", "2px solid #FF0000");
 				}
 				else if (!validateCityState(city)) {
 					$form.find('.city-error').text("* City may not contain numbers or special characters");
 					valid = false;
+					$form.find('#city').css("border", "2px solid #FF0000");
 				}
 				if (isEmpty(state)) {
 					$form.find('.state-error').text("* State is required");
 					valid = false;
+					$form.find('#state').css("border", "2px solid #FF0000");
 				}
 				else if (!validateCityState(state)) {
 					$form.find('.state-error').text("* State may not contain numbers or special characters");
 					valid = false;
+					$form.find('#state').css("border", "2px solid #FF0000");
 				}
 				if (isEmpty(zipcode)) {
 					$form.find('.zipcode-error').text("* Zipcode is required");
 					valid = false;
+					$form.find('#zipcode').css("border", "2px solid #FF0000");
 				}
 				else if (!validateZipcode(zipcode)) {
 					$form.find('.zipcode-error').text("* Zipcode must by five digits");
 					valid = false;
+					$form.find('#zipcode').css("border", "2px solid #FF0000");
 				}
 				if (isEmpty(domain)) {
 					$form.find('.domain-error').text("* Domain is required");
 					valid = false;
+					$form.find('#domain').css("border", "2px solid #FF0000");
 				}
 				else if (!validateDomain(domain)) {
 					$form.find('.domain-error').text("* Domain is invalid");
 					valid = false;
+					$form.find('#domain').css("border", "2px solid #FF0000");
 				}
 				if (!validateInt(pages)) {
 					$form.find('.pages-error').text("* Page Number must be an integer");
 					valid = false;
+					$form.find('#pages').css("border", "2px solid #FF0000");
 				} 
 				if (!validateInt(servers)) {
 					$form.find('.servers-error').text("* Server Number must be an integer");
 					valid = false;
+					$form.find('#servers').css("border", "2px solid #FF0000");
 				}
 				return valid;
 			};
 			jQuery(function($) {
 			$('#payment-form').submit(function(event) {
 			    var $form = $(this);
+			    $form.find('#cardnumber').css("border", "1px solid gray");
+			    $form.find('#cardcvc').css("border", "1px solid gray");
+			    $form.find('#cardexp-month').css("border", "1px solid gray");
+			    $form.find('#cardexp-year').css("border", "1px solid gray");
 
 			    $form.find('.button').prop('disabled', true);
 			    Stripe.card.createToken($form, stripeResponseHandler);
@@ -284,6 +316,11 @@
 
 			if (response.error) {
 			    // Post the errors
+			    $form.find('#cardnumber').css("border", "2px solid #FF0000");
+			    $form.find('#cardcvc').css("border", "2px solid #FF0000");
+			    $form.find('#cardexp-month').css("border", "2px solid #FF0000");
+			    $form.find('#cardexp-year').css("border", "2px solid #FF0000");
+
 			    validateFormFields();
 			    $form.find('.payment-error').text(response.error.message);
 			    $form.find('.button').prop('disabled', false);
@@ -366,12 +403,12 @@
 									<input type="text" id="pages" name="pages">
 									<span class="pages-error"></span>
 									<h4>Card Number</h4>
-									<input type="text" size="20" data-stripe="number"/> *
+									<input type="text" id="cardnumber" size="20" data-stripe="number"/> *
 									<h4>CVC</h4>
-									<input type="text" size="4" data-stripe="cvc"/> *
+									<input type="text" id="cardcvc" size="4" data-stripe="cvc"/> *
 									<h4>Expiration (MM/YYYY)</h4>
-									<input type="text" size="2" data-stripe="exp-month"/>
-    								<span> / </span><input type="text" size="4" data-stripe="exp-year"/> *
+									<input type="text" id="cardexp-month" size="2" data-stripe="exp-month"/>
+    								<span> / </span><input type="text" id="cardexp-year" size="4" data-stripe="exp-year"/> *
 									</br><span class="payment-error"></span></br></br>
 									<button type="submit" class="button">Sign Up</button>
 								</form>
