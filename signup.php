@@ -427,7 +427,7 @@
 									can be added at a price of $1.00 a piece.</p>
 								<p>Note: The domain, server, and page fields on the form are only to give us an idea of 
 									the level of service you would require.</p>
-								<p>Signing up is no charge to you, so register for an account today!</p>
+								<p>Register for an account today!</p>
 							</section>
 						</div>
 					</div>
